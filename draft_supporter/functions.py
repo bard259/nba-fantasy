@@ -31,7 +31,7 @@ def df_load(player_path, team_path):
   
 class sim:
   def __init__(self, df=None, player_path=None, team_path=None): # Add df and data_path as arguments
-    self.cur_roaster = []
+    self.cur_roster = []
     self.budget = 200
     
     if df is not None:  # Use df if provided
@@ -41,19 +41,19 @@ class sim:
         self.market = df_load(player_path, team_path)
     else:
         raise ValueError("Either 'df' or 'data_path' must be provided.")
-    self.cur_roaster = []
+    self.cur_roster = []
     self.budget = 200
     self.market['available'] = 1
     self.market['actual_price'] = self.market['actual_price'].fillna(1)
     self.market['cur_price'] = self.market['actual_price']
     self.market=self.market.sort_values('2025 total', ascending=False)
-    self.roaster = pd.DataFrame(columns=self.market.columns)
+    self.roster = pd.DataFrame(columns=self.market.columns)
 
   def my_pick(self, name, price):
     self.market_price(name, price)
     self.market_update()
-    self.cur_roaster.append(name)
-    self.roaster = self.market[self.market['player'].isin(self.cur_roaster)]
+    self.cur_roster.append(name)
+    self.roster = self.market[self.market['player'].isin(self.cur_roster)]
 
   def other_pick(self, name, price):
     self.market.loc[self.market['player']==name,'available'] = 0
@@ -69,7 +69,7 @@ class sim:
   def market_price(self, name, price):
     self.market.loc[self.market['player']==name,'cur_price'] = price
     price_diff = price - self.market.loc[self.market['player']==name,'actual_price'].sum()
-    rest_players = ((self.market['player']!=name) & (~self.market['player'].isin(self.cur_roaster)) & (self.market['available']==1) & (self.market['cur_price']!=1)).values
+    rest_players = ((self.market['player']!=name) & (~self.market['player'].isin(self.cur_roster)) & (self.market['available']==1) & (self.market['cur_price']!=1)).values
     rest_money = self.market.loc[rest_players,'cur_price'].sum()
     self.market.loc[rest_players,'cur_price'] *= (rest_money-price_diff)/rest_money
 
@@ -135,8 +135,8 @@ class sim:
     b2_vars = pulp.LpVariable.dicts("B2", players, cat="Binary")
     b3_vars = pulp.LpVariable.dicts("B3", players, cat="Binary")
 
-    if len(self.roaster)>0:
-      prob += pulp.lpSum([player_vars[name] for name in self.roaster['player']]) >= 1
+    if len(self.roster)>0:
+      prob += pulp.lpSum([player_vars[name] for name in self.roster['player']]) >= 1
 
     prob += pulp.lpSum([pg_vars[players[i]] * pg[i] for i in range(len(players))]) >= 1
     prob += pulp.lpSum([sg_vars[players[i]] * sg[i] for i in range(len(players))]) >= 1
@@ -192,6 +192,6 @@ class sim:
 
 
   def grow(self, name, price):
-    roaster = self.add_player(pick, self.cur_roaster)
+    roster = self.add_player(pick, self.cur_roster)
     self.market_price(pick, price)
     self.market_update()
