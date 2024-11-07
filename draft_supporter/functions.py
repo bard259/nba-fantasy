@@ -36,7 +36,7 @@ class sim:
     
     if df is not None:  # Use df if provided
         self.market = df
-    elif data_path is not None:  # Load from data_path if provided
+    elif player_path is not None and team_path is not None:  # Load from data_path if provided
       
         self.market = df_load(player_path, team_path)
     else:
