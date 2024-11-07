@@ -43,7 +43,6 @@ class sim:
         raise ValueError("Either 'df' or 'data_path' must be provided.")
     self.cur_roaster = []
     self.budget = 200
-    self.market = df
     self.market['available'] = 1
     self.market['actual_price'] = self.market['actual_price'].fillna(1)
     self.market['cur_price'] = self.market['actual_price']
