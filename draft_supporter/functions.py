@@ -30,14 +30,15 @@ def df_load(player_path, team_path):
   return df
   
 class sim:
-  def __init__(self, df=None, data_path=None): # Add df and data_path as arguments
+  def __init__(self, df=None, player_path=None, team_path=None): # Add df and data_path as arguments
     self.cur_roaster = []
     self.budget = 200
     
     if df is not None:  # Use df if provided
         self.market = df
     elif data_path is not None:  # Load from data_path if provided
-        self.market = pd.read_csv(data_path)
+      
+        self.market = df_load(player_path, team_path)
     else:
         raise ValueError("Either 'df' or 'data_path' must be provided.")
     self.cur_roaster = []
